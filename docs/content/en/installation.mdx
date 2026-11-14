@@ -1,0 +1,79 @@
+---
+title: Installation
+slug: installation
+group: Install
+order: 31
+summary: One script installs the server. A flag adds the macOS app. Both are checked against the release's checksums.
+---
+
+## Install the server
+
+```sh
+curl -fsSL https://github.com/knowledge-circuit/flotilla-releases/releases/latest/download/install.sh | sh
+```
+
+The script:
+
+1. picks the binary for your OS and CPU
+2. checks it against the release's `SHA256SUMS`
+3. puts it at `~/.local/bin/flotilla`
+4. tells you if that folder is not on your `PATH`, and warns about each missing [requirement](/docs/requirements)
+
+The server is a single file. The page and the role texts are built into it.
+
+## Add the macOS app
+
+```sh
+curl -fsSL https://github.com/knowledge-circuit/flotilla-releases/releases/latest/download/install.sh | sh -s -- --desktop
+```
+
+This also installs `Flotilla.app` into `/Applications`. The app is signed with a Developer ID and notarized, so it opens without a Gatekeeper warning.
+
+The app is a window around a server. It does not start one. Run `flotilla` first, then add `http://localhost:4780` in the app. See [the desktop app](/docs/desktop-app).
+
+## Options
+
+Set these before the `sh` to change what the script does.
+
+| Variable | Effect | Default |
+|---|---|---|
+| `FLOTILLA_VERSION` | Installs that release, for example `v0.1.4`. | The latest release |
+| `FLOTILLA_INSTALL_DIR` | Where the binary goes. | `~/.local/bin` |
+| `FLOTILLA_APP_DIR` | Where the app goes. | `/Applications` |
+
+```sh
+curl -fsSL https://github.com/knowledge-circuit/flotilla-releases/releases/latest/download/install.sh | FLOTILLA_VERSION=v0.1.4 sh
+```
+
+## Check it
+
+```sh
+flotilla --version
+```
+
+## Run it
+
+```sh
+flotilla                  # in a git repo: adds and opens that project
+flotilla ~/Projects/acme  # adds and opens the project at that path
+flotilla --no-open        # starts without opening a browser tab
+```
+
+The server listens on `127.0.0.1:4780`. All commands and flags are in [the CLI reference](/docs/cli).
+
+## Keep it running
+
+The server is a foreground process. To keep it running after you close the terminal, start it from your usual process manager, a `launchd` agent, a `systemd` user unit or a `tmux` session. Flotilla ships none of these.
+
+Stopping the server ends running turns. The threads come back with their history on the next start.
+
+## Uninstall
+
+Remove the binary and, if you installed it, the app. Your projects' repos are not touched.
+
+```sh
+rm ~/.local/bin/flotilla
+rm -rf /Applications/Flotilla.app
+```
+
+Flotilla's data stays in `~/.flotilla`. It holds the threads' database, the notes and the worktrees. Check the worktrees for uncommitted work before you delete it.

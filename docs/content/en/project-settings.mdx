@@ -1,0 +1,69 @@
+---
+title: Project settings
+slug: project-settings
+group: Reference
+order: 51
+summary: Every setting a project has, what it does and its default.
+---
+
+Open Settings with the cog at the bottom of the sidebar, then pick the project's page. Each project has its own values. The server holds them, so two open pages always agree.
+
+A switch saves on click. A typed value saves when you leave the field or press `↵`.
+
+## Autonomy
+
+| Setting | Values | Default |
+|---|---|---|
+| Autonomy | Off, See, Decide, Act | Off |
+
+Each level includes the one before. See [autonomy](/docs/autonomy).
+
+## Utilizator
+
+| Setting | Meaning | Default |
+|---|---|---|
+| Utilizator | Switches the project's [utilizator](/docs/utilizator) and its heartbeat on. | Off |
+| Check every | Minutes between two ticks of the heartbeat. | 10 |
+| Active hours | Two local times. Outside them no tick runs. The range may wrap past midnight. | Empty, which means always |
+| Stale after | Minutes after which an idle worker, a waiting reply, or with autonomy any condition, counts as stale. | 60 |
+| Provider | The utilizator's own provider. | Same as project |
+| Model | The utilizator's own model. | The project's default |
+
+## Linear
+
+| Setting | Meaning | Default |
+|---|---|---|
+| Linear project | The id of the Linear project whose matching issues the utilizator starts. Empty turns Linear intake off. | Empty |
+| Project URL | A link to the Linear project, shown on the project card. | Unset |
+| Trigger label | The label an issue must have to be accepted. | `ready-for-agent` |
+| Trigger status | The status an issue must have to be accepted. | `Todo` |
+
+Linear intake needs the utilizator on and the Linear MCP server configured in Claude Code.
+
+## Defaults
+
+| Setting | Meaning | Default |
+|---|---|---|
+| Provider | The provider new threads start on. | `claude`, your subscription |
+| Model | The model new threads start on. | Claude's default, or a provider's first model |
+
+Changing the provider clears the model, because a model belongs to its provider.
+
+## Settings of the installation
+
+These are not per project.
+
+| Page | What is there |
+|---|---|
+| Appearance | Theme: System, Light or Dark. Kept in the browser. |
+| Prerequisites | The status of `claude`, `git` and `gh`, with "Check again". |
+| Providers | Which models of each [provider](/docs/providers) show in the menus. |
+| Usage | Limit windows of your plan and of supported providers. |
+| Servers | The desktop app's server list. Only in the app. |
+| Devices | Paired devices, with "Revoke". |
+| Projects | Known projects, with archive and unarchive. |
+| About | The running version and the update button. |
+
+## Per thread
+
+The provider, model and effort of one thread are not settings. They are on the button under the input, `⌥P`. See [threads](/docs/threads).

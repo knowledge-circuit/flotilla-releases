@@ -1,0 +1,91 @@
+---
+title: Known limits and fixes
+slug: limits
+group: Reference
+order: 54
+summary: What Flotilla does not do yet, the workaround where there is one, and what to check when something looks stuck.
+---
+
+Flotilla adds a feature when its absence hurts in real use. This page lists what is missing on purpose or for now.
+
+## Limits
+
+### Projects
+
+| Limit | Workaround |
+|---|---|
+| You cannot add a repo to an existing folder of repos in the page. The repo list is fixed when the project is added. | Edit `projects.json` by hand. See below. |
+| A single-repo project cannot become a folder of repos. | Add the parent folder as a new project under another name. The old project's threads do not carry over. |
+| All repos of a project must sit directly inside one folder. | None. |
+| In a folder of repos, an orchestrator cannot have a branch of its own. | None. Workers start from their repo's default branch. |
+| No worker spans repos. | The orchestrator starts one worker per repo for the same feature. |
+| Flotilla has no "delete project". | Archive it, then delete its data folder. |
+
+### Moving threads
+
+| Limit | Workaround |
+|---|---|
+| Only orchestrators move. Workers do not. | Finish or tear down the workers first. |
+| Threads of a folder of repos cannot move. | None. |
+| Paths must be the same on both machines. | Use the same home folder layout on both. |
+| "Move to…" exists only in the desktop app. | None. |
+
+### Autonomy
+
+| Limit | Workaround |
+|---|---|
+| The inbox covers one project at a time. | Switch projects. The project menu marks those that need you. |
+| No card merges a pull request. | The card links to GitHub. |
+| A decision has no default answer and no timeout. | Answer it, or tell the agent to withdraw it. |
+| Flotilla reads no facts for a watched pull request in another repo, or for a Linear issue. | The orchestrator reads the item itself when it wakes. |
+
+### Everything else
+
+| Limit | Workaround |
+|---|---|
+| No Windows build. | None. |
+| The desktop app is macOS only. | Use the browser. |
+| No push notifications to a phone. | The macOS app notifies when a thread needs you and the window is not in front. |
+| On a phone, an image can only be pasted. There is no file button. | Paste from the clipboard. |
+| No built-in diff viewer. | Open the worktree in your editor, or read the pull request. |
+| GitHub and Linear are polled on a timer. There are no webhooks. | Lower "Check every", or press "Run now". |
+
+## Add a repo to an existing folder of repos
+
+1. Clone the new repo directly inside the project's folder.
+2. Stop the server when no turn is running.
+3. Open `~/.flotilla/projects.json` and add the repo to that project's `repos` list:
+
+```json
+{
+  "name": "acme",
+  "path": "/Users/ana/Projects/acme",
+  "repos": [
+    { "name": "web", "path": "/Users/ana/Projects/acme/web" },
+    { "name": "api", "path": "/Users/ana/Projects/acme/api" }
+  ]
+}
+```
+
+4. Start the server. The orchestrator can now start workers in the new repo.
+
+Adding the same folder again with "Add project…" does not pick up the new repo. It opens the existing project with its stored list.
+
+## When something looks stuck
+
+| What you see | What to check |
+|---|---|
+| A red banner across the top | A required tool is missing or logged out. Open Settings › Prerequisites. |
+| No pull request icons | `gh` is missing, logged out, or the repo is not on GitHub. Flotilla shows no error for this. |
+| A thread is `failed` | Open it. The error is in the conversation. Send a message to start it again. |
+| A message does not arrive | Look at the queue above the input. The thread is mid-turn. "Send now" or Stop moves it. |
+| A worker cannot be started on a branch | A thread on that branch exists already in that repo. One worktree has at most one worker. |
+| You cannot check out a branch in your own folder | A worker has it checked out in its worktree. Tear the worker down, or use another branch. |
+| "Tear down" is greyed out | The orchestrator still has workers, or it is the project's last one. |
+| A device lands on the login page | It was revoked, or the master token was rotated. Pair it again. |
+| "Repo missing" on the project card | A repo's folder is gone from the server's machine. Put it back, or remove it from `projects.json`. |
+| The page says "Reconnecting to the server…" | The server stopped or is restarting after an update. Threads come back when it is up. |
+
+## Where the logs are
+
+The server writes its log to the terminal it was started in. It logs one line per missing tool at start, one per provider, and one when `gh` cannot answer for a project.

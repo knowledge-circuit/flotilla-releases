@@ -1,0 +1,66 @@
+---
+title: The utilizator
+slug: utilizator
+group: Concepts
+order: 23
+summary: An optional thread that a timer wakes when something changed on GitHub or in Linear, so the project keeps moving while you are away.
+---
+
+Orchestrators move only when you or a worker write to them. A merged pull request, a review comment or a failed CI run says nothing to anybody. The utilizator closes that gap.
+
+It is one thread per project, off by default. You switch it on in the project's settings. It then stands in the sidebar footer, above "Settings".
+
+## The heartbeat
+
+Behind the utilizator is a timer in the server, the heartbeat. A tick looks at git, at GitHub through `gh`, and at Flotilla's own threads. It calls no model.
+
+When something changed, the heartbeat sends the utilizator one message, the digest. The utilizator reads it and tells the orchestrator that owns the work.
+
+<Flow>{`flowchart LR
+  timer([Timer]) --> tick[Tick: cheap checks, no model call]
+  tick -->|something changed| digest[Digest]
+  digest --> util[Utilizator]
+  util -->|message_orchestrator| orch[Orchestrator]
+  tick -->|nothing changed| skip([No turn])`}</Flow>
+
+The digest reports:
+
+- a pull request that was merged, closed, reopened, marked ready or sent back to draft
+- new comments and reviews on an open pull request, with the author and an excerpt
+- CI that turned failing
+- a worker or an orchestrator that failed
+- a stale worker, once
+- an orchestrator whose queue holds a worker reply that waited too long
+
+A worker is stale when it has been idle longer than "Stale after" with no pull request, or with an open one that had nothing new for that long.
+
+## What it can and cannot do
+
+| It can | It cannot |
+|---|---|
+| Message an existing orchestrator. | Reach a worker. |
+| Create an orchestrator for an accepted Linear issue. | Write code. It has no shell, file or git tools. |
+| Tell you when a decision is yours. | Merge, push, close or comment on a pull request. |
+
+An orchestrator's answer stays in the orchestrator's thread. Nothing comes back to the utilizator, so the two cannot talk in a loop.
+
+## Timing
+
+- A tick is skipped while the utilizator is mid-turn and outside the active hours. The next tick tells what the skipped one would have.
+- The first tick after a server start is a baseline. It reports only failed threads and stale workers, so a restart does not replay old news.
+- "Run now" in the utilizator's header sends a digest of the full state at once.
+- With the utilizator on, the project's fleet opens when the server starts, with no page open.
+
+## Linear issues
+
+The utilizator can start accepted Linear work by itself. Three settings control it: the Linear project id, a trigger label and a trigger status. An empty project id turns it off.
+
+On each tick the utilizator looks for issues in that project with that label and status. For each one it creates an orchestrator named after the issue, such as `KC-614`, and gives it the issue's title, link and description as accepted work. Then it moves the issue to In Progress.
+
+<Callout>
+Flotilla has no Linear token and no Linear client. The utilizator uses the Linear MCP server you already configured for Claude Code. If Claude Code cannot reach Linear on your machine, neither can the utilizator.
+</Callout>
+
+One issue gets one orchestrator, also across restarts. Flotilla never moves an issue to In Review or Done.
+
+The settings are listed in [project settings](/docs/project-settings).

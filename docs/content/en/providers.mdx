@@ -1,0 +1,68 @@
+---
+title: Use another model provider
+slug: providers
+group: Guides
+order: 46
+summary: Run threads on an endpoint other than your Claude subscription, such as Ollama Cloud, and choose which of its models show up.
+---
+
+By default every thread runs on your Claude subscription login. A provider is another endpoint that speaks the Anthropic Messages API. Claude Code runs against it. There is no second agent engine.
+
+Reasons to add one are a model you want to try, or a second pool of limits for workers when the subscription's window is used up.
+
+## 1. Describe the provider
+
+Create `providers.json` in Flotilla's home folder, `~/.flotilla`:
+
+```json
+[
+  {
+    "name": "ollama",
+    "baseUrl": "https://ollama.com",
+    "tokenEnv": "OLLAMA_API_KEY",
+    "models": ["kimi-k3.1-pro"],
+    "context": { "kimi-k3.1-pro": 1048576 }
+  }
+]
+```
+
+| Key | Meaning |
+|---|---|
+| `name` | What the menus call it. `claude` is taken by the subscription. |
+| `baseUrl` | The endpoint. |
+| `tokenEnv` | The name of the environment variable that holds the token. The token itself is never in the file. |
+| `models` | Optional. The model IDs to offer. Without it, Flotilla asks the endpoint once and keeps the models that support tools. |
+| `context` | Optional. The maximum context tokens per model ID. |
+| `allowed` | Optional. The subset of models that show in the menus. The settings page writes it for you. |
+
+## 2. Give the server the token
+
+Set the variable in the environment the server starts in:
+
+```sh
+OLLAMA_API_KEY=... flotilla
+```
+
+A provider whose variable is unset is listed as unavailable, with that as the reason.
+
+## 3. Restart
+
+Flotilla reads the file once per start. A change to the file or to the environment needs a restart. The server log has one line per provider.
+
+## Use it
+
+- **For one thread.** The button under the input opens the provider, model and effort menu, also with `⌥P`. Pick the provider. The thread keeps its conversation and restarts on the new endpoint.
+- **For new threads.** Settings, on the project's page, has a default provider and model for new threads.
+- **For the utilizator.** It has its own provider and model in the same place.
+
+A worker starts on its orchestrator's provider and model.
+
+## Pick which models show
+
+Settings › Providers has one block per provider with a checkbox per model. Uncheck the ones you never use. The last one cannot be unchecked.
+
+## Good to know
+
+- A provider thread has no effort level, and always names one of the provider's models.
+- If a provider disappears from the file or loses its token, its threads fail at their next start with the reason. A thread never falls back to the subscription by itself. Its menu still offers `claude`, and choosing it moves the thread back.
+- Settings › Usage shows limit windows for the subscription and for a provider on `ollama.com`. Other providers have no usage data.

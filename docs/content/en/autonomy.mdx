@@ -1,0 +1,102 @@
+---
+title: Autonomy
+slug: autonomy
+group: Concepts
+order: 24
+summary: Every open thing gets one owner. You see who has to act next, and only what is yours reaches your inbox.
+---
+
+You make the decisions an agent should not make alone. You do not want to manage the agents. Autonomy is the part of Flotilla that keeps those two apart.
+
+It is one setting per project with four levels. It is off by default, and each level includes the one before.
+
+| Level | What it adds |
+|---|---|
+| Off | Nothing. Flotilla behaves as described on the other pages. |
+| See | Each thread shows what is true of it and who has to act next. |
+| Decide | An inbox of what is yours. Agents ask you there, with options. |
+| Act | Agents follow pull requests and issues that are not theirs, and draft what they would post in your name. |
+
+## The problem it solves
+
+Without autonomy, four things go wrong as a fleet grows.
+
+- **Facts are told once and then forgotten.** If the turn that heard about a failing CI run went wrong, nothing shows the failure again.
+- **Only one thread sees them.** An orchestrator hears about its own worker's CI through a relay, two model calls later.
+- **A finished turn looks the same whether it is a report or a question.** So you read everything.
+- **Nobody watches an idle orchestrator.** One that sits with open tasks and no worker running stalls without a sound.
+
+## The idea: who acts next
+
+Blocked, ready and stale are all answers to one question: who has to act next on this thing?
+
+<Flow>{`flowchart LR
+  facts[Facts from git, GitHub and threads] --> cond[Conditions]
+  cond --> owner{Owner}
+  owner -->|worker or orchestrator| agent[Shown to the orchestrator every turn]
+  owner -->|you| inbox[Your inbox]
+  owner -->|outside| wait[Nothing sent, the clock runs]`}</Flow>
+
+**Facts** are read from the things themselves, such as a thread's state, a plan's open tasks, a pull request's CI and its review threads.
+
+**Conditions** are worked out from the facts every time they are read, and never stored. A condition is something true of a thread that somebody has to act on, such as "CI failing" or "idle with open tasks". It holds for as long as the facts say so, whoever was told.
+
+**Owners** are one of four: a worker, an orchestrator, you, or the outside. The outside is anything no agent and not you can move, such as CI that is still running.
+
+| Condition | Owner |
+|---|---|
+| A worker's pull request has conflicts, failing CI, unresolved review threads or changes requested | Worker |
+| A worker failed | Orchestrator |
+| A worker is idle with no pull request for longer than "Stale after" | Orchestrator |
+| A pull request is merged and its worker is not settled | Orchestrator |
+| The same, but settling would lose something | You |
+| An orchestrator is idle with open tasks and no worker working | Orchestrator. This is the stall. |
+| CI is running, or a required review is pending | Outside |
+| A pull request is green with no conflicts and no open review threads | You, to merge |
+| An orchestrator failed | You |
+
+<Callout>
+Every open thing in a project has exactly one owner at any time, and Flotilla knows how long that owner has been idle. Nothing waits on nobody.
+</Callout>
+
+A condition is stale when its owner has not moved for longer than "Stale after". A stale condition shows in red on its thread and gets a card in your inbox. That is the whole escalation. There is no count and no repeat.
+
+## See
+
+A sidebar row gets a second line while a condition holds. It shows the condition, a small icon for its owner and how long it has held. The tooltip lists every condition on the thread.
+
+Each orchestrator also gets its own conditions and its workers' at the start of every turn. An orchestrator sees its worker's failing CI on its next turn with no relay.
+
+Pull request facts refresh every 60 seconds while a page shows the project.
+
+## Decide
+
+An "Inbox" row appears at the top of the thread list, with a count.
+
+An orchestrator that needs your choice asks with a decision card. The card has a title, a short context and two to four options, and the agent marks the one it would take. The agent does the thinking. You read four lines.
+
+You answer with a click, with the keys `1` to `4`, or with a line of your own words. The answer goes to the asking thread as a message and starts a turn. Asking does not block the agent, which goes on with everything that does not depend on the answer.
+
+The inbox also holds cards the server makes itself, for a pull request that is ready to merge, a failed orchestrator and anything stale. A ready pull request links to GitHub. No card merges.
+
+Threads stay the way to go deep. You can still open any thread and answer there, and the agent then closes the card.
+
+At this level `needs you` changes meaning. The amber dot means the thread has an item in your inbox. A reply you have not opened is a quieter mark, a faint ring around the dot.
+
+Workers cannot ask you directly. They reach you through their orchestrator.
+
+## Act
+
+You also work with people. You review their pull requests and answer their issues. At this level you paste a link into an orchestrator and ask it to follow the item.
+
+The link becomes a watched task in the plan. When your review is requested, or the author answers or pushes after your last review, the orchestrator reads the change and drafts a review or a comment.
+
+Other people read those words as yours. So the draft comes to your inbox first, as a card with three fixed options: post it, post it with my edit, drop it. On "post", the orchestrator posts with `gh` or the Linear MCP. The server posts nothing itself.
+
+The inbox header counts how many drafts you posted unchanged, edited or dropped. That share is the measure of whether approval per post could be loosened later.
+
+Flotilla reads the facts of a watched pull request only when it is in one of the project's own repos. For a pull request elsewhere, or a Linear issue, the orchestrator reads the item itself when it wakes.
+
+## Try it
+
+[Turn on autonomy](/docs/turn-on-autonomy) goes through the levels one at a time.

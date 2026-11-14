@@ -1,0 +1,45 @@
+---
+title: Updating
+slug: updating
+group: Install
+order: 32
+summary: The server and the app each update themselves from the page. The server waits for running turns before it restarts.
+---
+
+The server and the desktop app are two programs and update separately.
+
+## The server, from the page
+
+The server looks for a newer release at start and every six hours. When one is out, "Update available" shows in the sidebar footer with the version.
+
+1. Click it. A dialog shows the version and a link to the release notes.
+2. Press "Install". The server downloads the binary, checks it against `SHA256SUMS`, checks that it runs, and puts it in place of the old one.
+3. The server waits until no thread is mid-turn, has queued messages or runs a background subagent. The footer says "Restarting when the current turns finish".
+4. It restarts with the same arguments. The page reconnects and reloads to get the new interface.
+
+A failed download or a checksum mismatch leaves the old binary in place and shows the reason, with "Try again".
+
+Settings › About shows the running version and has the same "Install" button.
+
+<Callout>
+The restart waits for turns to end because a restart ends any turn that is running. Waiting costs a few minutes. Not waiting would cost an agent's work in flight.
+</Callout>
+
+## The server, from the terminal
+
+```sh
+flotilla upgrade                   # the latest release
+flotilla upgrade --version v0.1.4  # that release
+```
+
+This replaces the binary and restarts nothing. If a server is running it tells you to restart it yourself.
+
+## The desktop app
+
+The macOS app checks for its own update at launch. When one is out, "App update" shows in the sidebar footer, under the server's. "Install" downloads it, checks its signature and relaunches the app.
+
+**Flotilla › Check for Updates…** in the menu bar checks at any time.
+
+## Versions on two machines
+
+To [move a thread](/docs/move-a-thread) between two servers, both must read the same handoff format. Keep both servers on the current release and you never have to think about it.

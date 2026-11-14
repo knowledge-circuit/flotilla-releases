@@ -1,0 +1,39 @@
+---
+title: What Flotilla is
+slug: welcome
+group: Start here
+order: 10
+summary: One local app that runs a fleet of Claude agents on your project. You talk to one of them, and it hands the work to the others.
+---
+
+Flotilla is a server that runs on your machine and a page you open in a browser. It runs Claude Code sessions for you, one per thread, and delivers the messages between them.
+
+You write to an orchestrator. It plans the work and starts workers. Each worker gets one branch in its own git worktree, does the work there, opens a pull request and reports back. You can read any thread and write into it at any time.
+
+<Flow>{`flowchart LR
+  you([You]) --> orch[Orchestrator]
+  orch -->|brief| w1[Worker on feat/api]
+  orch -->|brief| w2[Worker on feat/ui]
+  w1 -->|reply| orch
+  w2 -->|reply| orch
+  w1 --> pr1[(Pull request)]
+  w2 --> pr2[(Pull request)]`}</Flow>
+
+## What you get
+
+- **One screen.** A list of threads with a state dot each, one conversation, one input box.
+- **Parallel work without collisions.** Every worker has its own folder and branch, so two agents never edit the same checkout.
+- **Messages that arrive.** A worker's reply goes to its orchestrator when the worker's turn ends. A message for a busy agent waits in a queue. Nothing is dropped.
+- **Sessions that survive.** Stop the server and start it again, and every thread is back with its history.
+- **Your Claude login.** Sessions run on the Claude Code login you already have. Flotilla never sets an API key.
+- **Nothing merges by itself.** Agents push branches and open pull requests. Merging stays with you.
+
+## What it is not
+
+Flotilla is not a hosted service. The server listens on `127.0.0.1` and your code never leaves your machine through it. It is also not a new agent. Every thread is a normal Claude Code session, so your `CLAUDE.md`, skills, MCP servers and settings apply as they do in the terminal.
+
+## Where to go next
+
+- New here? Read [why Flotilla exists](/docs/why-flotilla), then do the [quickstart](/docs/quickstart).
+- Want the mental model first? Start with [threads](/docs/threads) and [projects](/docs/projects).
+- Setting it up for real? See [requirements](/docs/requirements) and [installation](/docs/installation).

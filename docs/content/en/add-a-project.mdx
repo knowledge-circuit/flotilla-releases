@@ -1,0 +1,71 @@
+---
+title: Add a project
+slug: add-a-project
+group: Guides
+order: 40
+summary: Add one repo or a folder of repos, from the terminal or from the page, and see what Flotilla will add before it does.
+---
+
+## From the terminal
+
+Start Flotilla inside a repo, or give it a path.
+
+```sh
+cd ~/Projects/my-app && flotilla
+flotilla ~/Projects/my-app
+flotilla ~/Projects/my-app --name shop   # when the folder's name is taken
+```
+
+A folder of repos must be named by its path. A bare `flotilla` inside such a folder opens the project list and adds nothing, so a stray start in `~/Projects` does not turn everything in it into one project.
+
+```sh
+flotilla ~/Projects/acme
+```
+
+## From the page
+
+This works from any device, because nothing opens on the server's screen.
+
+1. Open the project menu, the project's name at the top of the sidebar.
+2. Pick "Add project…".
+3. Type a folder path on the server's machine. `~` is the home folder there. Any other path must be absolute.
+4. Read the line under the list. It says what the path would add.
+5. Press "Add". The page switches to the new project.
+
+The list under the field suggests repos found under `~/Projects` that are not projects yet. Typing filters it. `↓` and `↑` move, `↵` on a row fills the field, and a second `↵` adds.
+
+On the server's own machine, "Choose with Finder…" opens the macOS folder dialog.
+
+### What the preview says
+
+| You typed | The line says |
+|---|---|
+| A repo, or a folder inside one | "Adds shop, one repo." with the repo's path |
+| A folder that holds several repos | "Adds acme, a folder of 3 repos:" with each repo's name |
+| A path that is a project already | "acme is a project already. Add shows it." |
+| A path Flotilla would refuse | Nothing. The reason shows when you press "Add". |
+
+<Callout>
+Flotilla never suggests a folder of repos. Nothing cheap tells a product's folder, with its frontend and backend, from a folder of unrelated repos. So you name it.
+</Callout>
+
+### Refusals
+
+Flotilla says why in one sentence under the field:
+
+- the path does not exist, or is a file
+- it is not a git repository and no folder directly inside it is one
+- it is not a full path
+- a project with that name exists already
+
+## After adding
+
+A new project has one orchestrator, `main`. In a single repo it runs in your checkout. In a folder of repos it runs in the folder.
+
+The project's own settings are under Settings, on the project's page. See [project settings](/docs/project-settings).
+
+## Remove a project
+
+Settings › Projects archives a project. An archived project leaves the menu, and its threads, worktrees and notes are kept. Unarchive it in the same place.
+
+Flotilla has no delete. To remove a project for good, tear down its workers first so no worktree holds work, archive it, then delete its data folder under `~/.flotilla`.

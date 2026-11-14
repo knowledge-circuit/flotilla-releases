@@ -1,0 +1,84 @@
+---
+title: The flotilla command
+slug: cli
+group: Reference
+order: 50
+summary: Four commands and their flags. A bare flotilla starts the server.
+---
+
+```text
+flotilla [command] [flags]
+```
+
+| Command | Does |
+|---|---|
+| `run` | Starts the server. The default when no command is given. |
+| `upgrade` | Installs the latest release in place of this binary. |
+| `pair` | Logs a device in with a one-time code. |
+| `version` | Prints the version. |
+
+`flotilla --help` lists the commands. `flotilla <command> --help` shows one command's flags.
+
+## run
+
+```text
+flotilla run [path] [flags]
+```
+
+With a path, or inside a git repo, that project is added and opened. A path to a folder that is no git repo and holds several adds them as one project. Anywhere else, the project list opens.
+
+| Flag | Meaning | Default |
+|---|---|---|
+| `--port <n>` | Port to listen on. | `4780` |
+| `--name <name>` | Project name, when adding a path. | The folder's name |
+| `--label <text>` | A tag shown in the sidebar footer and the tab title. | None |
+| `--no-open` | Do not open a browser tab. | Opens one |
+
+A bare `flotilla` and `flotilla <path>` are `run` too. A command name wins over a path, so for a folder named `pair` write `flotilla run ./pair`.
+
+## upgrade
+
+```text
+flotilla upgrade [flags]
+```
+
+Downloads the binary for this OS and CPU, checks it against the release's `SHA256SUMS`, checks that it runs and replaces the current binary. It prints the old and new version, or that you are up to date. It restarts nothing.
+
+| Flag | Meaning | Default |
+|---|---|---|
+| `--version <tag>` | Install this release, for example `v0.1.3`. | The latest |
+| `--port <n>` | Port of the running server to warn about. | `4780` |
+
+## pair
+
+```text
+flotilla pair [flags]
+```
+
+Prints a one-time code, valid for ten minutes. The server must be running.
+
+| Flag | Meaning | Default |
+|---|---|---|
+| `--url <url>` | The server's public URL, to print a ready link. | `FLOTILLA_PUBLIC_URL` |
+| `--link` | Print the permanent setup link with the master token. It needs no running server. | Off |
+| `--port <n>` | Port of the running server. | `4780` |
+
+See [remote access](/docs/remote-access).
+
+## version
+
+```sh
+flotilla version
+flotilla --version
+flotilla -v
+```
+
+## Mistyped commands
+
+A first word that is neither a command nor an existing path is an unknown command. Flotilla suggests the nearest one, exits with code 2 and starts no server.
+
+```text
+$ flotilla upgarde
+flotilla: unknown command "upgarde". Did you mean "upgrade"?
+Run "flotilla --help" for usage.
+```

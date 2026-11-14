@@ -1,0 +1,40 @@
+---
+title: Glossary
+slug: glossary
+group: Reference
+order: 55
+summary: Every word Flotilla uses in a fixed sense, in one place.
+---
+
+| Term | Meaning |
+|---|---|
+| Brief | The task a worker gets. It is the first message of its thread. |
+| Condition | With autonomy on, something true of a thread that somebody has to act on, such as "CI failing". Worked out from facts, never stored. |
+| Data folder | `~/.flotilla/<project>/`. The database, the notes, optional role files and the worktrees. |
+| Decision | A question an agent asks you through the inbox, with two to four options and a recommendation. It has an id like `D12` that is never reused. |
+| Device | A browser or app that was paired with a server and holds its own token. |
+| Digest | The heartbeat's message to the utilizator: what changed since the last tick. |
+| Draft | The full text an agent wants to post in your name. It waits on a card for your approval. |
+| Fleet | One project's orchestrators and their workers. One project, one fleet. |
+| Heartbeat | The server's timer behind the utilizator. A tick runs cheap checks and calls no model. |
+| Inbox | The list of what is yours in the project on screen: open decisions, and a card for each condition you own or that is stale. |
+| Orchestrator | A thread you talk to. It plans and hands out work, and writes no product code. |
+| Owner | Who has to act next on a condition: a worker, an orchestrator, you, or the outside. |
+| Pair code | A one-time code from `flotilla pair` that logs a device in. Valid ten minutes. |
+| Plan | An orchestrator's numbered list of topics and tasks. |
+| Project | A name and a set of git repositories: one repo, or a folder of several. |
+| Provider | An endpoint that threads can run on in place of the Claude subscription. |
+| Queue | Messages waiting for a thread's running turn to end. |
+| Reply | The text a worker ends its turn with. It goes to whoever started the turn. |
+| Repo | One git repository of a project. A worker works in exactly one. |
+| Server | One running Flotilla process on one machine. |
+| Settle | To close a worker's session and remove its worktree, keeping its branch. In the page this is "Tear down". |
+| Stale | A condition whose owner has not moved for longer than "Stale after". |
+| State | Where a thread stands: `working`, `needs you`, `idle` or `failed`. |
+| Thread | One agent session and its transcript, shown as one conversation. |
+| Topic | One thing you asked for, in a plan. Numbered `#7`. |
+| Turn | One run of an agent, from receiving a message until it stops. |
+| Utilizator | The optional thread that a timer wakes when something in the project changed. |
+| Watched item | A plan task that follows a pull request or issue no worker of yours owns. |
+| Worker | An agent on one branch of one repo, running in that branch's worktree. |
+| Worktree | A second working folder of a git repo, on its own branch. Each worker has one. |

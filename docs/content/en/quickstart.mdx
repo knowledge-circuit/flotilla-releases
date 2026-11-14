@@ -1,0 +1,56 @@
+---
+title: Quickstart
+slug: quickstart
+group: Start here
+order: 12
+summary: Install the server, open a repo and give the first task to an orchestrator. About five minutes.
+---
+
+You need macOS on Apple silicon or Linux, with Claude Code installed and logged in, and git. The full list is in [requirements](/docs/requirements).
+
+## 1. Install
+
+```sh
+curl -fsSL https://github.com/knowledge-circuit/flotilla-releases/releases/latest/download/install.sh | sh
+```
+
+The script puts the `flotilla` binary in `~/.local/bin` and warns about any tool it cannot find.
+
+## 2. Start it in a repo
+
+```sh
+cd ~/Projects/my-app
+flotilla
+```
+
+The server starts on `127.0.0.1:4780` and opens a browser tab. Inside a git repo, that repo becomes a project and opens. Anywhere else you get the project list.
+
+The project starts with one orchestrator named `main`.
+
+## 3. Give it a task
+
+Write to `main` what you want done, in plain words:
+
+```text
+Add a /health endpoint that returns the app version. Use a branch named feat/health.
+```
+
+The orchestrator plans, then starts a worker. A new row appears in the sidebar under `main`, named after the branch, `feat-health`. Its first message is the brief the orchestrator wrote.
+
+## 4. Watch and steer
+
+- The dot on each row is the thread's state. Green and pulsing means a turn is running.
+- Click the worker to read what it does. Tool calls fold into one line per turn.
+- Write into any thread to steer it. If the agent is busy, your message waits in the queue above the input.
+
+When the worker is done it pushes its branch, opens a pull request and reports to `main`. The row gets a pull request icon that links to GitHub.
+
+## 5. Clean up
+
+Merge the pull request on GitHub. Then pick "Tear down" in the worker's "…" menu. Flotilla closes the session and removes the worktree folder. The branch stays.
+
+## Next
+
+- [Threads](/docs/threads) explains orchestrators, workers and states.
+- [Projects](/docs/projects) explains where the worktrees and data live.
+- [Your first real task](/docs/first-task) goes through a full piece of work in more detail.

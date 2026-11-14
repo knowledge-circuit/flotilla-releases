@@ -1,0 +1,52 @@
+---
+title: The plan and notes
+slug: plan-and-notes
+group: Concepts
+order: 22
+summary: Each orchestrator keeps a numbered plan and a notes file. Both survive restarts and long conversations.
+---
+
+A long conversation forgets. Claude compacts old turns, and after a restart the agent only has what is on disk. The plan and the notes are the two things an orchestrator keeps on purpose.
+
+## The plan
+
+The plan is the orchestrator's list of what you asked for and the work behind it. The orchestrator writes it. You read it in the panel on the right of an orchestrator's thread, which `⌥T` shows and hides.
+
+| Part | What it is |
+|---|---|
+| Topic | One thing you asked for, with an optional short summary. Numbered `#7`. |
+| Task | One piece of work under a topic, todo or done. Numbered `#7.2`. |
+| Branch | Set on a task once a worker exists for it. The panel links it to that worker's thread. |
+| Repo | Names the branch's repo, in a project with several. |
+
+A topic's stage is worked out from its tasks. No tasks means an idea. Tasks with none started means planned. Anything else is in progress.
+
+<Callout>
+Numbers never change and are never reused, even after a topic is removed. You and the orchestrator can say "#7.2" a week later and mean the same task.
+</Callout>
+
+The orchestrator gets the current plan at the start of every turn, read fresh from the database. So the plan is right after a restart and after a compaction, at the cost of a few lines of context per turn.
+
+You cannot edit the plan in the panel. Ask the orchestrator to change it.
+
+## Notes
+
+Notes hold what is open, not history.
+
+| File | Who uses it |
+|---|---|
+| `notes/NOTES.md` | Shared by all of the project's orchestrators. |
+| `notes/<name>.md` | One orchestrator's own notes. |
+| `notes/utilizator.md` | The utilizator's notes. |
+
+The files live in the project's data folder. The Memory card in the plan panel shows their top-level bullets, and its icon opens both files in full.
+
+You can edit a notes file by hand. The panel picks the change up after the next turn or a reload.
+
+## Roles
+
+Each thread gets a role text added to its system prompt. It says who decides what and how the agent works. Flotilla ships one for orchestrators, one for workers and one for the utilizator.
+
+To change a role for one project, put a file with the same name in the project's data folder: `ORCHESTRATOR.md`, `WORKER.md` or `UTILIZATOR.md`. It replaces the built-in text for that project. A role text is fixed for the life of a session, so the change applies to threads started after it.
+
+Your repo's own `CLAUDE.md`, skills and settings apply as usual, because every thread is a normal Claude Code session in that folder.

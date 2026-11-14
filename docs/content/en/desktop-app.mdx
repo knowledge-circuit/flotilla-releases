@@ -1,0 +1,62 @@
+---
+title: The desktop app
+slug: desktop-app
+group: Guides
+order: 44
+summary: A macOS window around any Flotilla server, with a list of servers, native notifications and its own updates.
+---
+
+The app shows a server's own page in a window. It adds a list of servers, a dock icon, native notifications and a title bar that belongs to the page. It does not start a server. You run `flotilla` yourself, on this Mac or on another machine.
+
+Install it with the `--desktop` flag of the [install script](/docs/installation).
+
+## Add your first server
+
+On the first launch the app shows its server list.
+
+1. Start the server: `flotilla`.
+2. In the app, add a server with the URL `http://localhost:4780`. The name is optional. Without one the host names it.
+3. Click the server to open it.
+
+A server on localhost needs no pair code.
+
+## Add a remote server
+
+1. Set up [remote access](/docs/remote-access) for that server.
+2. On the server's machine, run `flotilla pair` and note the code.
+3. In the app, add a server with its `https://` URL and the pair code.
+
+The app redeems the code at once and keeps the device token in the macOS Keychain. In that server's Settings › Devices the app shows as "Flotilla on" followed by your Mac's name.
+
+<Callout title="Not in v0.1.5">
+The pair code field and the Keychain ship with the release after v0.1.5. On v0.1.5, add the server's URL and log in on its login page.
+</Callout>
+
+A remote server must be on HTTPS.
+
+## Switch servers
+
+The server row at the top of the sidebar names the server on screen. It opens a menu with the app's other servers and "Manage servers…".
+
+**Server › Change Server…** in the menu bar, `⌘⇧O`, opens the list page.
+
+## Manage servers
+
+Settings › Servers has one row per server.
+
+| State | Meaning |
+|---|---|
+| Online | It answers. |
+| Needs login | It answers and asks for a login. The app has no token for it. |
+| Unreachable | No answer, with the reason. |
+| Not paired | The app holds no device token for it. "Pair…" opens a code field. |
+
+"Check" runs the check again. "Remove" takes the server off the list. For a paired server the app first asks that server to revoke this device, then deletes the token from the Keychain.
+
+## New orchestrator on another server
+
+With more than one server, the "New orchestrator" dialog has a "Server" chip. Picking another server opens that server's page with the dialog open and your typed name and branch filled in.
+
+## Updates
+
+The app checks for its own update at launch. See [updating](/docs/updating).

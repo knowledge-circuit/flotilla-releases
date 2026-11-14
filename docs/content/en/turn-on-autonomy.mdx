@@ -1,0 +1,77 @@
+---
+title: Turn on autonomy
+slug: turn-on-autonomy
+group: Guides
+order: 42
+summary: Go through See, Decide and Act one level at a time, and know what to look for at each.
+---
+
+[Autonomy](/docs/autonomy) is a setting per project. Each level is usable alone, so take them one at a time and stay on a level until it feels normal.
+
+The setting is in Settings, on the project's page, under "Autonomy".
+
+## Level 1: See
+
+Set it to "See". Nothing about how agents behave changes yet. You only get more information.
+
+Look at the sidebar. A thread that has something to act on gets a second line with three parts:
+
+1. what holds, such as "CI failing" or "Ready to merge"
+2. an icon for who has to act next
+3. how long it has held, in red once it is stale
+
+Hover the line to read every condition on that thread with its owner.
+
+If the [utilizator](/docs/utilizator) is on, open it and press "Run now". The digest starts with "Conditions that hold" and names the owner on each line.
+
+Stay here for a day or two. If the owners match what you would have said yourself, go on.
+
+## Level 2: Decide
+
+Set it to "Decide". An "Inbox" row appears above the first orchestrator.
+
+Ask an orchestrator something with a real choice in it:
+
+```text
+We can cache the report per user or per team. Ask me which.
+```
+
+Then:
+
+1. Open the Inbox. A card shows an id such as `D1`, the asking thread, the question, a short context and the options, with one marked "Recommended".
+2. Answer with a click, with a key from `1` to `4`, or in your own words in the text field.
+3. The orchestrator gets "Decision D1" with your answer as a message and goes on.
+
+What else changes:
+
+- A pull request that is green and has no conflicts gets a card with "Open PR on GitHub".
+- A stale condition gets a card that opens its thread.
+- The amber dot now means "has an inbox item". A reply you have not opened shows as a faint ring.
+
+<Callout>
+The inbox does not replace threads. Open the thread when you want the whole discussion, and answer there if you prefer. The agent closes the card with the answer it took.
+</Callout>
+
+## Level 3: Act
+
+Set it to "Act". Now an orchestrator can follow work that is not its own.
+
+Paste a pull request link from one of the project's repos:
+
+```text
+Follow https://github.com/acme/web/pull/212 for me. I am a reviewer.
+```
+
+The orchestrator adds a watched task to its plan. The plan panel shows it with an eye icon and the link.
+
+When your review is requested, or the author pushes or answers after your last review, the orchestrator drafts a review. The draft arrives as a card:
+
+1. Unfold the draft and read it. A review names its kind: comment, approve or request changes.
+2. Pick "Post it", "Post it with my edit" or "Drop it".
+3. On post, the orchestrator posts the exact text with `gh`.
+
+A dropped draft is not drafted again until the author does something new.
+
+## Going back
+
+Set the level lower at any time. Running sessions pick the change up once their turn ends, and their conversations go on. Stored decisions stay in the database and leave the screen.

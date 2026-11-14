@@ -1,0 +1,74 @@
+---
+title: Files and environment
+slug: files-and-environment
+group: Reference
+order: 52
+summary: Every file Flotilla writes and every environment variable it reads.
+---
+
+## Flotilla's home folder
+
+`~/.flotilla`, or the folder `FLOTILLA_HOME` names.
+
+| File | Holds | Safe to edit by hand |
+|---|---|---|
+| `projects.json` | The known projects, each with a name and a path. A folder of repos also lists its repos. | Yes, with the server stopped |
+| `token` | The master token for remote access. Mode 600. | Delete it to rotate. The server makes a new one at start. |
+| `devices.json` | Paired devices, each with a name, a token hash and timestamps. Mode 600. | Delete it to log every paired device out |
+| `providers.json` | Extra model [providers](/docs/providers). You create it. | Yes. Restart to apply. |
+
+## A project's data folder
+
+`~/.flotilla/<project>/`.
+
+| Path | Holds |
+|---|---|
+| `flotilla.db` | A SQLite database with four tables: threads, plans, decisions and settings. |
+| `notes/NOTES.md` | Notes shared by the project's orchestrators. |
+| `notes/<name>.md` | One orchestrator's notes. |
+| `worktrees/` | One folder per worker. In a folder of repos, `worktrees/<repo>/<branch>`. |
+| `ORCHESTRATOR.md`, `WORKER.md`, `UTILIZATOR.md` | Optional. Each replaces the built-in role text for this project. |
+
+Not in the database: message history, running state, the queue. History is in Claude Code's transcripts under `~/.claude/projects/`.
+
+## The desktop app
+
+| Where | Holds |
+|---|---|
+| `~/Library/Application Support/dev.marodevs.flotilla/servers.json` | The app's server list and the server it opened last. |
+| macOS Keychain, service `dev.marodevs.flotilla` | One device token per paired server, under the server's origin. |
+
+## Environment variables
+
+### The server
+
+| Variable | Effect |
+|---|---|
+| `FLOTILLA_HOME` | Moves `~/.flotilla`. Use it to run a second, separate installation. |
+| `FLOTILLA_CLAUDE` | Path to the `claude` binary to run, when it should not be the one on `PATH`. |
+| `FLOTILLA_PUBLIC_URL` | The server's public URL, used by `flotilla pair` to print a ready link. |
+| The variable a provider's `tokenEnv` names | That provider's token. |
+
+Flotilla never sets `ANTHROPIC_API_KEY` for a thread.
+
+### The install script
+
+| Variable | Effect |
+|---|---|
+| `FLOTILLA_VERSION` | Installs that release instead of the latest. |
+| `FLOTILLA_INSTALL_DIR` | Where the binary goes. Default `~/.local/bin`. |
+| `FLOTILLA_APP_DIR` | Where the app goes. Default `/Applications`. |
+| `FLOTILLA_RELEASE_URL` | The folder the release files come from. Also read by `flotilla upgrade` and the server's update check. |
+
+## In the browser
+
+A few choices are kept in the browser's local storage and are per browser, not per server: the theme, the sidebar's width, the plan panel's width and whether it is open.
+
+## The network
+
+| What | Where |
+|---|---|
+| The server | Listens on `127.0.0.1`, port 4780 unless `--port` says otherwise. |
+| Page to server | One WebSocket at `/ws`. |
+| Update check | Reads the latest release's `SHA256SUMS` from GitHub at start and every six hours. |
+| Agents | Whatever Claude Code, `git` and `gh` reach, as they do in your terminal. |

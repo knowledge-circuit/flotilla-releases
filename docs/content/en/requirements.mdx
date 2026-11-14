@@ -1,0 +1,53 @@
+---
+title: Requirements
+slug: requirements
+group: Install
+order: 30
+summary: What Flotilla needs on the machine, what is optional, and how it tells you when something is missing.
+---
+
+Flotilla runs three tools and bundles none of them. It checks each one at start and shows what is missing, with the command that fixes it. It installs nothing.
+
+## Platforms
+
+| Platform | Server | Desktop app |
+|---|---|---|
+| macOS on Apple silicon | Yes | Yes |
+| Linux x64 | Yes, not yet checked on real x64 hardware | No |
+| Linux arm64 | Yes | No |
+| Windows | No | No |
+
+Any modern browser works for the page. On a phone the same page has its own layout.
+
+## Tools
+
+| Tool | Needed | What for | Install |
+|---|---|---|---|
+| Claude Code, logged in | Required | Every thread is a Claude Code session. | `curl -fsSL https://claude.ai/install.sh \| bash`, then run `claude` once to log in |
+| git | Required | Projects and worktrees. | From your package manager |
+| GitHub CLI `gh`, logged in | Optional | Pull request icons, pull request status, and the pull requests workers open. | `brew install gh`, then `gh auth login` |
+
+Flotilla runs the `claude` it finds on your `PATH`. Set `FLOTILLA_CLAUDE=/path/to/claude` to pick another.
+
+## Your Claude login
+
+Sessions run on the login that Claude Code stored. Flotilla never sets `ANTHROPIC_API_KEY`, and a thread on the subscription fails if another key is in use.
+
+A fleet uses your plan faster than one session does. Settings › Usage shows the plan's limit windows.
+
+To run threads on another endpoint, see [use another model provider](/docs/providers).
+
+## Optional pieces
+
+| Piece | Needed for |
+|---|---|
+| A git remote | Pushing branches and moving a thread between servers. |
+| A GitHub repo | Pull requests and everything [autonomy](/docs/autonomy) reads from them. |
+| The Linear MCP server, configured in Claude Code | The utilizator's Linear intake, and drafts on Linear issues. |
+| A reverse proxy with HTTPS, such as Caddy | [Remote access](/docs/remote-access) from another device. |
+
+## How Flotilla reports a problem
+
+- **At start**, the server log gets one line per tool that is not OK, with its fix.
+- **In the page**, Settings › Prerequisites lists each tool with its version, where it was found and its status. "Check again" runs the checks once more.
+- **A red banner** runs across the top of the app while a required tool is missing or logged out. An optional tool never shows the banner.

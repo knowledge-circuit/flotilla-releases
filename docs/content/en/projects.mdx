@@ -1,0 +1,85 @@
+---
+title: Projects, repos and where files live
+slug: projects
+group: Concepts
+order: 21
+summary: A project is one git repo or a folder of several. Workers get copies under ~/.flotilla, and your own checkout stays as you left it.
+---
+
+A project is a name and a set of git repositories. One project has one fleet, and a fleet's threads only know their own project.
+
+## Two shapes
+
+| Shape | What you point Flotilla at | Orchestrator runs in |
+|---|---|---|
+| One repo | Any checkout of the repo. A subfolder works too, and adds the repo it belongs to. | The checkout. |
+| A folder of repos | A folder that is not a git repo itself and holds checkouts directly inside it. | The folder, so it sees every repo. |
+
+A folder of repos fits a product that lives in several repositories, such as `web`, `api` and `gitops` under `~/Projects/acme`. Each repo takes the name of its folder.
+
+<Callout title="Not in v0.1.5">
+A folder of repos ships with the release after v0.1.5. On v0.1.5 a project is exactly one repo.
+</Callout>
+
+## Git is required
+
+Every repo needs git. A worker is a git worktree on its own branch, so a plain folder gives it nowhere to work.
+
+- A folder with no git repo in it and none directly inside it is refused when you add it.
+- In a folder of repos, only children with their own `.git` folder count. Plain folders, dot folders and linked worktrees are left out.
+- A remote is optional for local work. Without one a new branch starts from the local default branch, and the worker skips the pull request.
+- GitHub and `gh` are optional. Without them you get no pull request icons and no pull request status.
+
+## Where files live
+
+Flotilla keeps its own files out of your repos.
+
+```text
+~/.flotilla/
+├── projects.json            the known projects
+├── token                    the master token for remote access
+├── devices.json             paired devices
+├── providers.json           optional extra model providers
+└── acme/                    one data folder per project
+    ├── flotilla.db          threads, plans, decisions, settings
+    ├── notes/               the orchestrators' notes
+    └── worktrees/
+        ├── feat-health/     one repo: worktrees/<branch>
+        └── web/feat-one/    several repos: worktrees/<repo>/<branch>
+```
+
+`FLOTILLA_HOME` moves `~/.flotilla` somewhere else.
+
+Conversation history is not in the database. It stays in Claude Code's own transcripts under `~/.claude/projects/`.
+
+## What touches your checkout
+
+Workers edit and commit in their worktree, never in the folder you added. Flotilla does not pull or switch branches in your checkout.
+
+Two things do reach it, and you should know both.
+
+- **The repo's `.git` folder.** A worktree is not a clone. It belongs to your original repo, so that repo's `.git` gains the worker's branch, the worktree's registration and whatever `git fetch origin` brings in. Your working files and your current branch are not changed.
+- **The orchestrator's shell.** An orchestrator runs in the folder you added. Its file tools are refused there, but its shell is not checked. Its role tells it to delegate, and that is an instruction, not a guarantee.
+
+One side effect follows from worktrees. A branch that a worker has checked out cannot be checked out in your own folder at the same time. Git refuses it.
+
+## A folder of repos in practice
+
+- The orchestrator has no branch of its own. Its workers start from their repo's default branch.
+- The orchestrator names the repo when it starts a worker. A missing or unknown name is refused with the list of repos.
+- A worker is known by its repo and its branch. The same branch name in two repos gives two workers, which is how one feature spans a frontend and a backend.
+- No worker spans repos. One worker has one repo, one branch, one worktree and one pull request.
+- A worker is told where the other repos' checkouts are, to read only.
+- The sidebar, the plan and the pull request icon each show the repo's name as a small chip.
+
+## The repo list is fixed
+
+Flotilla records a folder's repos once, when you add the project. It does not look again. A repo you clone into the folder later is not part of the project.
+
+There is no button for adding one yet. The workaround is in [known limits](/docs/limits).
+
+## Several projects
+
+The menu at the top of the sidebar switches projects. One project is on screen at a time, and the others keep running. A dot in the menu marks a project that needs you.
+
+Archiving a project hides it from the menu. Nothing is removed and nothing running is stopped.

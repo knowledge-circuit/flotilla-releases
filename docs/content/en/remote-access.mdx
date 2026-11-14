@@ -1,0 +1,81 @@
+---
+title: Reach it from another device
+slug: remote-access
+group: Guides
+order: 43
+summary: Put a reverse proxy with HTTPS in front of the server, pair your phone with a one-time code, and revoke a device when you need to.
+---
+
+The server listens on `127.0.0.1` only. To open it from a phone or another computer you need a reverse proxy on the same machine.
+
+<Callout title="Read this first">
+Whoever reaches the page can run any command on that machine. Your proxy decides who can connect at all, and Flotilla's token is the second lock behind it. Do not expose a Flotilla server to the open internet without both. A private network such as Tailscale or a VPN in front is a good idea.
+</Callout>
+
+## 1. Set up the proxy
+
+The proxy must serve HTTPS, keep the `Host` header and add `X-Forwarded-For` and `X-Forwarded-Proto`. Caddy does all of that by default:
+
+```text
+flotilla.example.com {
+    reverse_proxy 127.0.0.1:4780
+}
+```
+
+HTTPS is not optional. The login cookie is marked `Secure`, and browsers drop it over plain HTTP.
+
+## 2. Pair the device
+
+On the server's machine, with the server running:
+
+```sh
+flotilla pair --url https://flotilla.example.com
+```
+
+It prints a link that ends in a one-time code:
+
+```text
+https://flotilla.example.com/?pair=K7QM-2XNP
+```
+
+Open the link on the device. The code works once and lives ten minutes. The device gets its own token as a cookie and lands on the page.
+
+Without `--url`, the command prints only the code. Open your server's address on the device and type the code into the "Pair code" field of the login page.
+
+Set `FLOTILLA_PUBLIC_URL` on the server's machine to skip `--url` every time.
+
+## 3. Use it on a phone
+
+Below 768 px the page switches to a phone layout.
+
+- The sidebar is a drawer. Open it with the menu button or a swipe from the left edge.
+- `↵` breaks the line. Only the send button sends.
+- A long press on a thread row opens its menu.
+- The plan panel is hidden.
+
+## Revoke a device
+
+Settings › Devices lists every paired device with when it was paired and last seen. "Revoke" logs that device out at once. Its open pages reload onto the login page.
+
+## The setup link
+
+```sh
+flotilla pair --link --url https://flotilla.example.com
+```
+
+This prints a link that carries the master token. It grants full access and does not expire. Prefer a pair code, which makes a device you can revoke by itself.
+
+## Rotate everything
+
+To replace the master token, delete the `token` file in `~/.flotilla` and restart the server. It makes a new one and prints the new setup path once. Devices that logged in with the old setup link are logged out. Paired devices keep their own tokens.
+
+To log out every paired device, revoke them in Settings › Devices.
+
+## What protects the server
+
+| Rule | Effect |
+|---|---|
+| Local requests need no token | A request to `localhost` or `127.0.0.1` passes. One that carries `X-Forwarded-For` never counts as local. |
+| Everything else needs a token | The page, its files and the WebSocket all answer 401 without one. |
+| The WebSocket checks its origin | A foreign website cannot open a socket to your server, even with a valid cookie. |
+| Wrong codes lock pairing | After five wrong codes in ten minutes, every code is refused for ten minutes. Tokens that already work keep working. |

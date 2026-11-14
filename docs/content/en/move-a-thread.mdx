@@ -1,0 +1,68 @@
+---
+title: Move a thread to another server
+slug: move-a-thread
+group: Guides
+order: 45
+summary: Take an idle orchestrator, with its whole conversation, from one machine to another and back.
+---
+
+You start a piece of work on a laptop and want it to continue on a machine that stays on. Moving the orchestrator takes its conversation, its plan and its notes there. Its next message on the other machine resumes the same session.
+
+<Callout title="Not in v0.1.5">
+"Move to…" ships with the release after v0.1.5, and needs the desktop app of that release.
+</Callout>
+
+## What you need
+
+- The desktop app, with both servers in its list and both paired.
+- The same project on both machines, at the same path. Flotilla remaps nothing, so `/Users/ana/Projects/shop` must exist under that exact path on both.
+- A git remote both machines can reach. Code travels by git, not in the move.
+
+## What must be true of the thread
+
+The move is refused unless all of these hold. Each refusal says why in plain words.
+
+- It is an orchestrator. Workers do not move.
+- It has no open workers.
+- No turn runs, nothing is queued and no background subagent runs.
+- Its folder is clean, with no modified or untracked files.
+- Its branch has an upstream and every commit is pushed.
+- The project is a single repo. Threads of a folder of repos cannot move.
+
+## Move it
+
+1. Open the orchestrator's "…" menu and pick "Move to…".
+2. Pick the target server, if there is more than one.
+3. Read the dry run. It lists what moves: the branch at its commit, the transcript, the plan topics and the notes. If the project is new on the target, it says the project is added there.
+4. Press "Move".
+
+The app opens the thread on the other server.
+
+<Flow>{`flowchart LR
+  app([Desktop app]) -->|1. asks for an import ticket| b[Server B]
+  app -->|2. asks to send the thread| a[Server A]
+  a -->|3. thread data, with the ticket| b
+  a -.->|code, by git push| remote[(Git remote)]
+  remote -.->|git fetch| b`}</Flow>
+
+## What happens to the old row
+
+On the first server the thread stays in the sidebar, muted, with an arrow and the other server's name. It is read-only. A click opens it on the other server.
+
+## Move it back
+
+Do the same move from the other server. The muted row on the first server becomes the live thread again.
+
+## If the target refuses
+
+The target checks before it takes anything. Common refusals:
+
+| Refusal | Fix |
+|---|---|
+| The commit is not there after the fetch | Push the branch on the source machine. |
+| The folder holds changes | Clean or commit the checkout on the target. |
+| The project path does not exist | Clone the repo to the same path on the target. |
+| A provider or model is missing | Configure the same [provider](/docs/providers) on the target, or switch the thread to one it has. |
+| Pair the server first | Pair the target in Settings › Servers. |
+
+A failed move leaves the thread on the first server as it was. There is no half-moved state.

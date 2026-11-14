@@ -1,0 +1,71 @@
+---
+title: Why Flotilla exists
+slug: why-flotilla
+group: Start here
+order: 11
+summary: The problems that came up when one person ran many Claude Code sessions by hand, and the decisions Flotilla made about each.
+---
+
+Flotilla started as a set of terminal panes. One Claude Code session planned, a few others worked on branches, and a terminal multiplexer carried text between them. It worked for two agents and broke down at six. Every feature in Flotilla answers a problem from that setup, and this page lists them.
+
+## The problems
+
+### You become the message bus
+
+In terminals, an agent that finishes says so on its own screen and nobody else hears it. You read the pane, copy the result and paste it to the planner. With six panes, that was most of the job.
+
+Flotilla owns the sessions, so it knows when a turn ends. A worker's reply goes to its orchestrator, and the orchestrator starts its next turn on it without you.
+
+### Agents collide in one checkout
+
+Two agents in the same folder overwrite each other's files and switch each other's branches.
+
+Each worker in Flotilla gets its own git worktree on its own branch. A second worker on the same branch is refused.
+
+### State is a guess
+
+A tool that watches terminal panes decides an agent is blocked by what its screen looks like. That guess is often wrong.
+
+Flotilla reads state from the session itself. A thread is `working`, `idle`, `needs you` or `failed`, and the sidebar shows it.
+
+### Messages get lost in a busy agent
+
+Text typed into a running terminal session lands in the middle of whatever the agent is doing, or nowhere.
+
+In Flotilla a message for a thread that is mid-turn waits in a queue you can see, and is delivered when the turn ends. "Send now" hands it over between two tool calls. Stop is the only interrupt.
+
+### Nothing watches GitHub
+
+A merged pull request, a review comment or a failed CI run tells no agent anything. The work sits until you notice.
+
+The [utilizator](/docs/utilizator) is an optional thread that a timer wakes when something changed. It tells the orchestrator that owns the work.
+
+### You read everything to find the one question
+
+Every finished turn looked the same in the sidebar, whether it was a report or a question only you could answer.
+
+With [autonomy](/docs/autonomy) on, every open thing has one owner. Only what is yours reaches your inbox, as a short card with options.
+
+### Real projects are several repos
+
+A feature often touches a frontend, a backend and a deployment repo. One orchestrator per repo meant three plans for one topic.
+
+A [project](/docs/projects) can be a folder of repos. One orchestrator sees all of them and starts each worker in the repo it names.
+
+## The decisions
+
+These rules hold everywhere in Flotilla. Each one closes off a failure we hit.
+
+| Decision | Why |
+|---|---|
+| The orchestrator writes no product code. | A planner that also codes stops planning. Its file tools are refused outside its notes folder. |
+| Two levels and no more. A worker cannot start workers. | Deeper trees were impossible to follow, and nobody knew who owned a result. |
+| Workers talk to their orchestrator only. | Worker-to-worker messages made loops that no one could trace. |
+| No thread waits on a permission prompt. | A prompt in a thread nobody is looking at stops the fleet. Agents run with permissions bypassed, so run Flotilla only on code and machines you trust. |
+| Git is the authority. | Flotilla keeps one small database of threads, plans and settings. History comes from the session transcripts and worktrees come from git, so a crash cannot leave the two in disagreement. |
+| Nothing merges by itself. | Agents push their own branch and open a pull request. A person merges. |
+| Local by default. | The server listens on `127.0.0.1`. Reaching it from another device takes a reverse proxy you set up and a token. |
+
+<Callout title="A consequence worth knowing">
+Bypassed permissions mean a worker can run any command your user can. Flotilla's limits are instructions and worktrees, not a sandbox. Treat a Flotilla server like a shell with your login.
+</Callout>

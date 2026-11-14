@@ -1,0 +1,69 @@
+---
+title: Servers, devices and access
+slug: servers-and-devices
+group: Concepts
+order: 25
+summary: A server is one Flotilla on one machine. Devices log in with their own tokens, and no server knows about any other.
+---
+
+Flotilla is local first. This page explains what changes when you want to reach it from a phone, or run it on more than one machine.
+
+## A server
+
+A server is one running `flotilla` process. It owns the agent sessions of every project on that machine. Closing the browser tab stops nothing.
+
+The server listens on `127.0.0.1` and nothing else. A page opened on `localhost` needs no login.
+
+<Callout>
+Whoever reaches a Flotilla page can run any command on that machine, because the agents can. That is why the server does not listen on the network by itself, and why remote access takes two locks: your reverse proxy and a token.
+</Callout>
+
+## Devices and tokens
+
+To use a server from another device you put a reverse proxy with HTTPS in front of it. Every request that comes through the proxy needs a token.
+
+| Token | What it is | How you get it |
+|---|---|---|
+| Master token | One secret per server, in the file `token` in Flotilla's home folder. It does not expire. | `flotilla pair --link` prints a setup link that carries it. |
+| Device token | One secret per paired device. The server stores only its hash. | Redeem a pair code on the device. |
+
+A pair code is the normal way. `flotilla pair` on the server's machine prints a one-time code such as `K7QM-2XNP`. It works once and lives ten minutes. Entering it on a device makes a new device with its own token.
+
+Settings › Devices lists the paired devices, with when each was paired and last seen. "Revoke" logs one device out at once and leaves the others alone.
+
+<Flow>{`flowchart LR
+  phone([Phone]) -->|HTTPS + token| proxy[Reverse proxy]
+  laptop([Laptop browser]) -->|localhost, no token| server
+  proxy -->|127.0.0.1| server[Flotilla server]
+  server --> sessions[Agent sessions]`}</Flow>
+
+## The app keeps the server list
+
+The desktop app is a window around a server's own page. The app keeps a list of servers, and every server in it is treated the same way. Switching loads that server's page.
+
+No server knows of any other. There is no hub and no account. In a plain browser there is no list at all, because the page is just its own server.
+
+The app pairs with each server separately and keeps each device token in the macOS Keychain. The token never reaches the page, a file or a URL.
+
+<Callout title="Not in v0.1.5">
+Pairing per server with tokens in the Keychain ships with the release after v0.1.5. The v0.1.5 app has the server list and logs in with the cookie from a setup link or a pair code.
+</Callout>
+
+## Moving a thread
+
+An idle orchestrator can move from one server to another, conversation and all, and back. On the other machine its next message resumes the same session with its whole context.
+
+The thread's data goes straight from one server to the other. Code does not travel in it. Code goes by git, so the branch must be pushed and the other machine must be able to fetch it.
+
+The conditions are strict, because a half-moved thread would be worse than none. The steps and the refusals are in [move a thread](/docs/move-a-thread).
+
+## Stable and dev side by side
+
+Two servers can run on one machine with separate data. Give each its own port and its own `FLOTILLA_HOME`:
+
+```sh
+flotilla --port 4780 --label stable
+FLOTILLA_HOME=~/.flotilla-dev flotilla --port 4790 --label dev
+```
+
+The label shows in the sidebar footer and the tab title, so you can tell them apart.

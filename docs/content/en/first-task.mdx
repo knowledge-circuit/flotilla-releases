@@ -1,0 +1,61 @@
+---
+title: Your first real task
+slug: first-task
+group: Guides
+order: 41
+summary: Take one piece of work from a sentence to a merged pull request, and learn the habits that keep a fleet readable.
+---
+
+The [quickstart](/docs/quickstart) showed the buttons. This guide goes through one piece of work the way you would do it every day.
+
+## 1. Say what you want, not how
+
+Write to the orchestrator as you would to a senior colleague. Give the outcome and the constraints.
+
+```text
+Users should be able to export their invoices as CSV from the invoices page.
+Keep the existing PDF export as it is. Split it however you think is right.
+```
+
+The orchestrator reads the code, asks if something is unclear, and writes a plan. Open the plan panel with `⌥T` to see the topic and its tasks.
+
+## 2. Let it split the work
+
+The orchestrator starts one worker per task that can run on its own. Each worker gets a brief, which you can read as the first message of its thread.
+
+A good split has workers that do not need each other's unfinished code. If two tasks depend on each other, say so, and the orchestrator will run them one after the other.
+
+## 3. Stay out, or step in
+
+You do not have to watch. Each worker reports to the orchestrator when its turn ends, and the orchestrator acts on the report.
+
+Step in when you see something the agents cannot know:
+
+- **Write to the orchestrator** to change the plan. This is the usual place.
+- **Write to a worker** to correct one detail. Its answer stays in its own thread.
+- **Stop a turn** with `⌥.` when an agent is going the wrong way. Type the correction first, then stop, and your message starts the next turn.
+
+## 4. Review the pull requests
+
+A worker that is done pushes its branch, opens a pull request and names the link in its report. The sidebar row gets a pull request icon.
+
+Review on GitHub as you would any pull request. Review comments reach the worker in one of two ways:
+
+- With the [utilizator](/docs/utilizator) on, new comments are reported to the orchestrator, which passes them to the worker.
+- Without it, tell the orchestrator that you left comments.
+
+The worker answers with new commits on the same branch.
+
+## 5. Merge and settle
+
+Merge on GitHub. Nothing in Flotilla merges.
+
+After the merge, the worker's folder is no longer needed. The orchestrator can settle its own worker once the branch is merged and the worktree is clean. Or pick "Tear down" in the worker's menu yourself.
+
+## Habits that help
+
+- **One orchestrator per stream of work.** Add a second orchestrator for an unrelated milestone, so two plans do not mix in one conversation.
+- **Refer to plan numbers.** "Drop #7.2" is exact a week later.
+- **Give an orchestrator its own branch for a large feature.** Its workers then start from that branch and open their pull requests against it. This is for single-repo projects.
+- **Attach images by pasting.** A screenshot of the bug is often the shortest brief.
+- **Use slash commands.** Type `/` in the input to see the session's commands and skills.

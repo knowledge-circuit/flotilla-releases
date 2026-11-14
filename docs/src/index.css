@@ -1,0 +1,1247 @@
+@import "tailwindcss";
+
+/* Manual dark-mode hook for the future toggle (issue: theme toggle).
+   For slice 01 the OS preference drives the tokens below. */
+@custom-variant dark (&:is(.dark *));
+
+/* ---- Fresh, minimal docs theme (NOT the product design system) ---------- */
+/* Light tokens. A neutral, document-first palette in the spirit of Linear. */
+:root {
+  --background: #ffffff;
+  --foreground: #1c1c1f;
+  --muted-foreground: #6b6b73;
+  --border: #ececf0;
+  /* Flotilla's accent, the editor blue of the app, so the docs read as the same product */
+  --accent: #007acc;
+  --accent-contrast: #ffffff;
+  --code-bg: #f5f5f7;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* Dark tokens: the reader's choice from the topbar switch (data-theme on <html>), else
+   the OS preference. Keep the two blocks identical. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --background: #0f0f11;
+    --foreground: #ededf0;
+    --muted-foreground: #9a9aa3;
+    --border: #26262b;
+    /* The app's dark-mode primary */
+    --accent: #4fb0f0;
+    --accent-contrast: #04263d;
+    --code-bg: #1a1a1e;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0f0f11;
+  --foreground: #ededf0;
+  --muted-foreground: #9a9aa3;
+  --border: #26262b;
+  /* The app's dark-mode primary */
+  --accent: #4fb0f0;
+  --accent-contrast: #04263d;
+  --code-bg: #1a1a1e;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+html {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+}
+
+/* ---- Layout + content styles (hand-rolled; chrome arrives in issue 03) --- */
+.doc-shell {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 6rem;
+}
+
+.doc-back {
+  display: inline-block;
+  margin-bottom: 2rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+.doc-back:hover {
+  color: var(--foreground);
+}
+
+.doc-eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.doc-summary {
+  margin: 0 0 2rem;
+  color: var(--muted-foreground);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.doc-content {
+  line-height: 1.7;
+}
+.doc-content h1 {
+  margin: 0 0 0.75rem;
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.doc-content h2 {
+  margin: 2.5rem 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.doc-content h3 {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+.doc-content p,
+.doc-content ul,
+.doc-content ol {
+  margin: 0 0 1.25rem;
+}
+.doc-content ul,
+.doc-content ol {
+  padding-left: 1.4rem;
+}
+/* Tailwind preflight strips list markers; restore them for prose. */
+.doc-content ul {
+  list-style: disc;
+}
+.doc-content ol {
+  list-style: decimal;
+}
+.doc-content li {
+  margin: 0.35rem 0;
+}
+.doc-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.doc-content code {
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+.doc-content pre {
+  background: var(--code-bg);
+  padding: 1rem 1.25rem;
+  border-radius: 0.6rem;
+  overflow-x: auto;
+}
+.doc-content pre code {
+  background: transparent;
+  padding: 0;
+}
+.doc-content table {
+  width: 100%;
+  margin: 1rem 0 1.5rem;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.doc-content th {
+  text-align: left;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.doc-content td {
+  padding: 0.5rem 0.9rem 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+/* Framed screenshots: rounded, click to expand */
+.doc-zoom {
+  display: block;
+  width: 100%;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+.doc-zoom img {
+  /* Natural size, capped by the column — small action crops must not
+     upscale soft; full-width heroes still fill the column. */
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 0.75rem;
+}
+.doc-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: rgba(0, 0, 0, 0.86);
+}
+.doc-lightbox.is-zoomed {
+  cursor: grab;
+}
+.doc-lightbox.is-zoomed:active {
+  cursor: grabbing;
+}
+/* At least the screen, wider when zoomed, so margin:auto centres the image and the
+   overlay scrolls to every edge of it. */
+.doc-lightbox-stage {
+  display: flex;
+  box-sizing: border-box;
+  min-width: 100%;
+  min-height: 100%;
+  width: max-content;
+  padding: 2rem;
+}
+.doc-lightbox img {
+  display: block;
+  flex: none;
+  height: auto;
+  margin: auto;
+  max-width: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  cursor: zoom-in;
+  user-select: none;
+}
+.doc-lightbox.is-zoomed img {
+  cursor: inherit;
+}
+.doc-lightbox img.is-measuring {
+  max-width: calc(100vw - 4rem);
+  max-height: calc(100vh - 4rem);
+}
+.doc-lightbox-tools {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 0.6rem;
+  background: rgba(20, 20, 22, 0.85);
+  backdrop-filter: blur(8px);
+}
+.doc-lightbox-tools button {
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0.6rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: transparent;
+  color: #ededf0;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color 150ms;
+}
+.doc-lightbox-tools button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+.doc-lightbox-tools button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ---- Doc layout: pinned sidebar | (topbar + content + TOC) -------------- */
+.doc-root {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Content column to the right of the pinned sidebar. */
+.doc-frame {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 3.5rem;
+  padding: 0 1.25rem;
+  background: color-mix(in srgb, var(--background) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.doc-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 650;
+  color: var(--foreground);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.doc-brand-mark {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+  color: var(--accent);
+}
+.doc-logo {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--foreground);
+}
+.doc-brand-divider {
+  width: 1px;
+  height: 1.1rem;
+  background: var(--border);
+}
+.doc-brand-docs {
+  color: var(--muted-foreground);
+  font-weight: 550;
+}
+.doc-topbar-spacer {
+  flex: 1;
+}
+
+/* "Open app" call-to-action in the topbar */
+.doc-open-app {
+  padding: 0.35rem 0.8rem;
+  border-radius: 0.45rem;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.doc-open-app:hover {
+  background: color-mix(in srgb, var(--accent) 85%, var(--foreground));
+}
+
+/* Language switcher — dropdown menu */
+.doc-langswitch {
+  position: relative;
+}
+.doc-lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.55rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0.45rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.doc-lang-btn:hover,
+.doc-lang-btn[aria-expanded="true"] {
+  color: var(--foreground);
+  background: var(--code-bg);
+}
+.doc-lang-globe {
+  width: 1rem;
+  height: 1rem;
+}
+.doc-lang-caret {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+.doc-lang-menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 40;
+  min-width: 9rem;
+  padding: 0.3rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.doc-lang-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--foreground);
+  text-decoration: none;
+}
+.doc-lang-item:hover {
+  background: var(--code-bg);
+}
+.doc-lang-item.is-active {
+  color: var(--accent);
+}
+.doc-lang-check {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+/* "Not translated yet" banner */
+.doc-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.5rem;
+  background: var(--code-bg);
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+.doc-banner strong {
+  color: var(--foreground);
+}
+
+.doc-nav-toggle {
+  display: none;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  cursor: pointer;
+}
+.doc-nav-toggle-bar,
+.doc-nav-toggle-bar::before,
+.doc-nav-toggle-bar::after {
+  content: "";
+  display: block;
+  width: 1rem;
+  height: 2px;
+  background: var(--foreground);
+  position: relative;
+}
+.doc-nav-toggle-bar::before {
+  position: absolute;
+  top: -5px;
+}
+.doc-nav-toggle-bar::after {
+  position: absolute;
+  top: 5px;
+}
+
+.doc-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 14rem;
+  gap: 2.5rem;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 0 2.5rem;
+}
+/* Landing: same chrome, no "On this page" rail. */
+.doc-body.no-toc {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Sidebar — pinned to the viewport's left edge, full height, own separator. */
+.doc-sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 16rem;
+  height: 100vh;
+  border-right: 1px solid var(--border);
+  background: var(--background);
+}
+/* Only the list scrolls, so the scrollbar starts under the brand row. */
+.doc-sidebar-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1rem 1.25rem 1.75rem;
+}
+.doc-sidebar-brand {
+  flex: none;
+  display: flex;
+  align-items: center;
+  height: 3.5rem;
+  padding: 0 1.25rem;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+}
+.doc-sidebar-group {
+  margin-bottom: 1.25rem;
+}
+.doc-sidebar-group-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0 0 0.35rem;
+  padding: 0.3rem 0.6rem 0.3rem 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.doc-sidebar-group-title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.doc-sidebar-group-toggle:hover .doc-sidebar-group-title {
+  color: var(--foreground);
+}
+.doc-sidebar-chevron {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--muted-foreground);
+  transition: transform 0.15s ease;
+}
+.doc-sidebar-chevron.is-open {
+  transform: rotate(90deg);
+}
+.doc-sidebar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.doc-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.3rem 0.6rem;
+  margin-left: -0.6rem;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--muted-foreground);
+  text-decoration: none;
+  line-height: 1.5;
+}
+.doc-sidebar-item-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+.doc-sidebar-link.is-active .doc-sidebar-item-icon {
+  opacity: 1;
+}
+.doc-sidebar-link:hover {
+  color: var(--foreground);
+  background: var(--code-bg);
+}
+.doc-sidebar-link.is-active {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  font-weight: 550;
+}
+
+.doc-scrim {
+  display: none;
+}
+
+/* Main column */
+.doc-main {
+  min-width: 0;
+  padding: 2.5rem 0 5rem;
+}
+
+/* Table of contents */
+.doc-toc {
+  position: sticky;
+  top: 3.5rem;
+  align-self: start;
+  max-height: calc(100vh - 3.5rem);
+  overflow-y: auto;
+  padding: 2.75rem 0;
+}
+.doc-toc-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.doc-toc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--border);
+}
+.doc-toc-item a {
+  display: block;
+  padding: 0.2rem 0 0.2rem 0.85rem;
+  margin-left: -1px;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+.doc-toc-item.depth-3 a {
+  padding-left: 1.6rem;
+}
+.doc-toc-item a:hover {
+  color: var(--foreground);
+}
+
+/* Anchor offset so headings clear the sticky topbar */
+.doc-content :is(h1, h2, h3) {
+  scroll-margin-top: 5rem;
+}
+
+/* Breadcrumbs */
+.doc-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+.doc-breadcrumbs a {
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+.doc-breadcrumbs a:hover {
+  color: var(--foreground);
+}
+
+/* Prev / next */
+.doc-prevnext {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.doc-prevnext-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  text-decoration: none;
+}
+.doc-prevnext-link.is-next {
+  text-align: right;
+}
+.doc-prevnext-link:hover {
+  border-color: var(--accent);
+}
+.doc-prevnext-label {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.doc-prevnext-title {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+/* Desktop: brand lives in the sidebar, not the topbar */
+.doc-topbar-brand {
+  display: none;
+}
+
+/* Tablet: drop the right-hand TOC */
+@media (max-width: 1024px) {
+  .doc-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .doc-toc {
+    display: none;
+  }
+}
+
+/* Mobile: sidebar becomes an off-canvas drawer */
+@media (max-width: 768px) {
+  .doc-nav-toggle {
+    display: inline-flex;
+  }
+  .doc-topbar-brand {
+    display: inline-flex;
+  }
+  .doc-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 25;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .doc-sidebar.is-open {
+    transform: translateX(0);
+  }
+  .doc-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.4);
+    border: 0;
+  }
+  .doc-body {
+    padding: 0 1.5rem;
+  }
+}
+
+/* ---- Landing page (rendered inside the docs chrome) ---------------------- */
+.doc-landing {
+  padding: 2.5rem 0 6rem;
+}
+
+.doc-hero {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+.doc-hero h1 {
+  margin: 0 0 1rem;
+  font-size: 2.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.doc-hero p {
+  max-width: 40rem;
+  margin: 0 auto 2rem;
+  color: var(--muted-foreground);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+/* Search trigger */
+.doc-search-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 30rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: left;
+}
+.doc-search-trigger:hover {
+  border-color: var(--accent);
+}
+.doc-search-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+.doc-search-text {
+  flex: 1;
+}
+.doc-search-kbd {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 0.3rem;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+}
+
+/* Linear-style tile sections */
+.doc-tile-section {
+  margin-bottom: 3rem;
+}
+.doc-tile-section-title {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.doc-tile-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+.doc-tile {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  overflow: hidden;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+.doc-tile:hover {
+  border-color: color-mix(in srgb, var(--foreground) 25%, var(--border));
+  background: color-mix(in srgb, var(--code-bg) 50%, transparent);
+}
+.doc-tile-media {
+  display: block;
+  aspect-ratio: 5 / 3;
+  padding: 1rem;
+  background: var(--code-bg);
+  border-bottom: 1px solid var(--border);
+}
+.doc-tile-icon {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--foreground);
+}
+.doc-tile-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem 1.1rem;
+}
+.doc-tile-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--foreground);
+}
+.doc-tile-summary {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+/* ---- Search palette ------------------------------------------------------ */
+.doc-topbar-search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.doc-topbar-search:hover {
+  color: var(--foreground);
+  background: var(--code-bg);
+}
+.doc-topbar-search .doc-search-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.doc-search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 8vh 1rem 1rem;
+}
+.doc-search-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.45);
+  cursor: default;
+}
+.doc-search-modal {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 36rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+.doc-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem 1.25rem;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 1rem;
+  outline: none;
+}
+.doc-search-results {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.doc-search-empty {
+  padding: 1rem 1.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+.doc-search-hit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+}
+.doc-search-hit:hover {
+  background: var(--code-bg);
+}
+.doc-search-hit-title {
+  font-weight: 600;
+  color: var(--foreground);
+}
+.doc-search-hit-excerpt {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  line-height: 1.45;
+}
+.doc-search-hit-excerpt mark {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  color: inherit;
+  border-radius: 0.2rem;
+}
+
+/* ---- "Proč to tak je": the one callout ---------------------------------------- */
+.doc-callout {
+  margin: 1.75rem 0;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 0.5rem 0.5rem 0;
+  background: color-mix(in oklab, var(--accent) 7%, var(--background));
+}
+
+.doc-callout-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.doc-callout-body > :first-child {
+  margin-top: 0;
+}
+
+.doc-callout-body > :last-child {
+  margin-bottom: 0;
+}
+
+.doc-flow {
+  margin: 1.75rem 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.doc-flow svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+
+.doc-flow-source pre {
+  margin: 0;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  color: var(--muted-foreground);
+}
+
+/* A part's standing in the structure page: a read that stores nothing, a console setting,
+   or a part that is designed and not yet built. What carries no tag exists today. */
+.doc-tag {
+  display: inline-block;
+  margin-left: 0.25rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--muted-foreground);
+  vertical-align: 0.1em;
+}
+.doc-tag-p {
+  border-style: dashed;
+}
+
+.doc-content img {
+  /* Shots are 2x captures; a portrait clip would otherwise run the full height of the
+     screen. Both limits together keep the aspect ratio; the lightbox shows it full size. */
+  max-width: 100%;
+  max-height: 30rem;
+  width: auto;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+/* ---- Novinky: release notes, laid out like the Tilodesk changelog ------- */
+.doc-topbar-link {
+  padding: 0.35rem 0.7rem;
+  border-radius: 0.45rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-decoration: none;
+  transition:
+    color 150ms,
+    background-color 150ms;
+}
+.doc-topbar-link:hover,
+.doc-topbar-link.is-active {
+  color: var(--foreground);
+  background: var(--code-bg);
+}
+.doc-changelog {
+  max-width: 56rem;
+  margin: 0 auto;
+}
+.doc-changelog-heading {
+  margin: 0 0 2.5rem;
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.doc-changelog-entry {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 0 0 3rem;
+  scroll-margin-top: 4.5rem;
+}
+.doc-changelog-entry + .doc-changelog-entry {
+  padding-top: 3rem;
+  border-top: 1px solid var(--border);
+}
+.doc-changelog-date {
+  padding-top: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.doc-changelog-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.doc-changelog-title h2 {
+  flex: 1;
+  margin: 0 0 1rem;
+}
+.doc-content .doc-changelog-title h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+.doc-changelog-copy {
+  flex: none;
+  margin-top: 0.4rem;
+  padding: 0.35rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition:
+    color 150ms,
+    background-color 150ms;
+}
+.doc-changelog-copy:hover {
+  color: var(--foreground);
+  background: var(--code-bg);
+}
+.doc-changelog-copy svg {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.doc-changelog .doc-content h3 {
+  margin-top: 1.75rem;
+}
+@media (max-width: 768px) {
+  .doc-changelog-entry {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+  .doc-changelog-date {
+    padding-top: 0;
+    color: var(--muted-foreground);
+    font-weight: 500;
+  }
+}
+.doc-changelog-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+.doc-changelog-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    color 150ms,
+    background-color 150ms;
+}
+.doc-changelog-bar > .doc-changelog-action:first-child {
+  margin-left: -0.6rem;
+}
+.doc-changelog-action:hover {
+  color: var(--foreground);
+  background: var(--code-bg);
+}
+.doc-changelog-action svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.doc-changelog-single .doc-changelog-date {
+  display: block;
+  margin-bottom: 1rem;
+  padding: 0;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+.doc-changelog-single h1 {
+  margin: 0.5rem 0 1.5rem;
+}
+
+/* ---- Scrollbars: thin, in the theme's colours, not the OS's white track -- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*:hover {
+  scrollbar-color: var(--muted-foreground) transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Novinky filter: one module at a time, the choice lives in ?modul= */
+.doc-changelog-filter {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: -1.25rem 0 2.5rem;
+}
+.doc-changelog-filter button {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  font-weight: 550;
+  cursor: pointer;
+  transition:
+    color 150ms,
+    background-color 150ms,
+    border-color 150ms;
+}
+.doc-changelog-filter button:hover {
+  color: var(--foreground);
+}
+.doc-changelog-filter button[aria-pressed="true"] {
+  border-color: var(--foreground);
+  background: var(--foreground);
+  color: var(--background);
+}
+.doc-changelog-empty {
+  display: none;
+  color: var(--muted-foreground);
+}
+.doc-module-badge {
+  display: inline-block;
+  margin-right: 0.4rem;
+  padding: 0 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 550;
+  line-height: 1.35rem;
+  vertical-align: 0.1em;
+}
+
+/* A release note's hero fills the column, edge to edge with the text under it, instead of
+   the 30rem cap a doc screenshot gets (.doc-content img). */
+.doc-changelog .doc-zoom img {
+  width: 100%;
+  max-height: none;
+}

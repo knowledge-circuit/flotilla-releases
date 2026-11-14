@@ -1,0 +1,81 @@
+---
+title: Threads, orchestrators and workers
+slug: threads
+group: Concepts
+order: 20
+summary: A thread is one agent session shown as one conversation. There are three kinds, and each has a fixed job.
+---
+
+Everything in the sidebar is a thread. A thread is one Claude Code session and its transcript. Its id is the session id, so a thread resumes exactly its own session after a restart.
+
+## The three kinds
+
+| Kind | Job | Runs in | Writes code |
+|---|---|---|---|
+| Orchestrator | Plans, splits work, briefs workers, reviews their reports, cleans up. | The project's folder, or a worktree of its own if you give it a branch. | No |
+| Worker | Does one task on one branch and opens a pull request. | Its branch's worktree. | Yes |
+| Utilizator | Watches GitHub and Linear on a timer and nudges orchestrators. Optional, one per project. | The project's folder. | No |
+
+A project starts with one orchestrator, `main`. You can add more, for example one per milestone. Workers belong to the orchestrator that started them and show under it.
+
+<Callout>
+The orchestrator's `Edit` and `Write` tools are refused outside its notes folder. That keeps it planning. It still has a shell, so the rule is a strong habit and not a lock.
+</Callout>
+
+## States
+
+| State | Dot | Meaning |
+|---|---|---|
+| `working` | green, pulsing | A turn is running. |
+| `needs you` | amber | Something waits for you. Without autonomy, an orchestrator finished a turn you have not opened. With autonomy at Decide, the thread has an item in your inbox. |
+| `idle` | grey | The turn ended. Ready for input. |
+| `failed` | red | The session ended with an error. |
+
+## Names and titles
+
+A worker's name is its branch as a slug, so `feat/one` becomes `feat-one`. In a project with several repos the repo comes first, `web-feat-one`. The name is the address agents use and never changes.
+
+The sidebar shows the session's title, which Claude generates from the conversation. "Rename" in the thread's menu changes the title, not the name.
+
+## How messages flow
+
+Agents in Flotilla do not share a screen. They exchange messages, and the server delivers them.
+
+<Flow>{`flowchart TD
+  you([You]) -->|write| orch[Orchestrator]
+  orch -->|spawn_worker with a brief| worker[Worker]
+  orch -->|message_worker| worker
+  worker -->|reply when its turn ends| orch
+  you -.->|write directly| worker
+  worker -.->|answer stays in its thread| you`}</Flow>
+
+- **A brief** is the first message of a worker's thread. The orchestrator writes it.
+- **A reply** is the text a worker ends its turn with. It goes to whoever started that turn. If the orchestrator started it, the reply arrives in the orchestrator's thread and starts a turn there. If you wrote to the worker yourself, the answer stays in the worker's thread and the orchestrator is not disturbed.
+- **A turn the orchestrator started always ends with one message to it.** That is the reply, or one line saying you stopped the worker, or one line saying it failed and why.
+- **Workers cannot reach each other.** Nothing delivers to a worker except its orchestrator and you.
+
+## Queue, send now and stop
+
+A message for a thread that is mid-turn waits in the queue above the input. This holds for your messages and for worker replies.
+
+| You want to | Do this | What happens |
+|---|---|---|
+| Add something for later | Type and press `↵` | It queues and starts its own turn when the running one ends. |
+| Add something to the running turn | "Send now" on the queued message, or `⌘↵` | The agent reads it between two tool calls. No work in flight is lost. |
+| Interrupt | Stop, or `⌥.` | The turn ends at once. The session is kept. The next queued message starts. |
+
+To interrupt with new instructions, type the message first, then press Stop.
+
+## Model and effort
+
+The button under the input shows the provider, model and effort the session runs on. It opens a menu to change them for that thread. A change made while a turn runs applies when the turn ends.
+
+A worker starts on its orchestrator's provider, model and effort. Later changes to the orchestrator do not move its workers.
+
+## Tear down
+
+"Tear down" in a thread's menu closes its session, removes its worktree folder and takes it out of the sidebar. Its branch is kept, so nothing committed is lost. Uncommitted files go with the folder, and the confirm dialog tells you how many there are.
+
+An orchestrator can settle its own worker without asking you, but only when nothing can be lost. The worker must be idle, its worktree clean and its branch merged into the default branch.
+
+You cannot tear down an orchestrator that still has workers, or a project's last orchestrator.
